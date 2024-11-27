@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@govtechsg/sgds@2.2.0/css/sgds.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            text-align: center;
+            color: #007BFF;
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-top: 8px;
+            font-size: 16px;
+        }
+        .form-control:focus {
+            border-color: #007BFF;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 12px 0;
+            background-color: #007BFF;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .flash {
+            padding: 12px;
+            background-color: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+        }
+        .input-group {
+            display: flex;
+            width: 100%;
+            align-items: center;
+        }
+        .input-group input {
+            flex: 1;
+            margin-left: 8px;
+        }
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .valid-message {
+            color: green;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .password-field {
+    position: relative;
+}
+
+.password-field input {
+    padding-right: 30px; /* Space for the icon */
+}
+
+.password-field i {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+        .flash-message {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Signup</h1> {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
+        <div class="flash">
+            {% for category, message in messages %}
+            <p class="{{ category }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %} {% endwith %}
+
+        <form method="POST" action="{{ url_for('signup') }}" onsubmit="return validateForm()">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Example: Sparrow" required maxlength="15" class="form-control">
+                <div id="username-error" class="error-message"></div>
+                <div id="username-valid" class="valid-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Example: sparrow@email.com" required class="form-control">
+                <div id="email-error" class="error-message"></div>
+                <div id="email-valid" class="valid-message"></div>
+            </div>
+
+            <div class="form-group password-field">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Password" required maxlength="50" class="form-control">
+                <i class="far fa-eye" id="togglePassword" style="cursor: pointer;"></i>
+                <div id="password-error" class="error-message"></div>
+                <div id="password-valid" class="valid-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="mobile">Mobile Number</label>
+                <div class="input-group">
+                    <input type="text" id="countryCode" name="countryCode" placeholder="+65" required maxlength="5" class="form-control">
+                    <input type="text" id="mobile" name="mobile" placeholder="12345678" required maxlength="15" class="form-control">
+                </div>
+                <div id="mobile-error" class="error-message"></div>
+                <div id="mobile-valid" class="valid-message"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Sign Up</button>
+        </form>
+    </div>
+
+    <script>
+        // Real-time Validation for Username
+        document.getElementById('username').addEventListener('input', function() {
+            const username = this.value;
+            const errorMessage = document.getElementById('username-error');
+            const validMessage = document.getElementById('username-valid');
+    
+            if (username.includes(" ")) {
+                errorMessage.textContent = "Username cannot contain spaces.";
+                validMessage.textContent = "";
+            } else if (username.length < 3) {
+                errorMessage.textContent = "Username must be at least 3 characters long.";
+                validMessage.textContent = "";
+            } else if (username.length > 15) {
+                errorMessage.textContent = "Username cannot be more than 15 characters.";
+                validMessage.textContent = "";
+            } else if (!/^[a-zA-Z0-9]+$/.test(username)) {
+                errorMessage.textContent = "Username can only contain letters and numbers.";
+                validMessage.textContent = "";
+            } else if (/^\d+$/.test(username)) {
+                errorMessage.textContent = "Username cannot be entirely numeric.";
+                validMessage.textContent = "";
+            } else {
+                validMessage.textContent = "Username looks good! (3-15 characters, no spaces)";
+                errorMessage.textContent = "";
+            }
+        });
+    
+        // Real-time Validation for Email
+        document.getElementById('email').addEventListener('input', function() {
+            const email = this.value;
+            const errorMessage = document.getElementById('email-error');
+            const validMessage = document.getElementById('email-valid');
+    
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+            if (!email) {
+                errorMessage.textContent = "Email cannot be empty.";
+                validMessage.textContent = "";
+            } else if (!emailPattern.test(email)) {
+                errorMessage.textContent = "Please enter a valid email address.";
+                validMessage.textContent = "";
+            } else {
+                validMessage.textContent = "Email looks good!";
+                errorMessage.textContent = "";
+            }
+        });
+    
+        // Real-time Validation for Password
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const errorMessage = document.getElementById('password-error');
+            const validMessage = document.getElementById('password-valid');
+    
+            if (password.length < 8) {
+                errorMessage.textContent = "Password must be at least 8 characters long.";
+                validMessage.textContent = "";
+            } else if (password.length > 50) {
+                errorMessage.textContent = "Password cannot be more than 50 characters.";
+                validMessage.textContent = "";
+            } else if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+                errorMessage.textContent = "Password must contain at least one uppercase letter, one lowercase letter, and one number.";
+                validMessage.textContent = "";
+            } else {
+                validMessage.textContent = "Password is strong!";
+                errorMessage.textContent = "";
+            }
+        });
+    
+        // Real-time Validation for Mobile Number
+        document.getElementById('mobile').addEventListener('input', function() {
+            const mobileNumber = this.value;
+            const countryCode = document.getElementById('countryCode').value;
+            const errorMessage = document.getElementById('mobile-error');
+            const validMessage = document.getElementById('mobile-valid');
+    
+            if (!mobileNumber || mobileNumber.length < 6) {
+                errorMessage.textContent = "Please enter a valid mobile number.";
+                validMessage.textContent = "";
+            } else if (countryCode === "+65" && !/^\d{8}$/.test(mobileNumber)) {
+                errorMessage.textContent = "Singapore mobile numbers must have 8 digits.";
+                validMessage.textContent = "";
+            } else {
+                validMessage.textContent = "Mobile number looks good!";
+                errorMessage.textContent = "";
+            }
+        });
+    
+        
+    document.getElementById('togglePassword').addEventListener('click', function () {
+        const passwordInput = document.getElementById('password');
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Toggle the eye icon
+        this.classList.toggle('fa-eye-slash');
+    });
+    
+        // Form Validation Before Submit
+        function validateForm() {
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const mobile = document.getElementById('mobile').value;
+            const countryCode = document.getElementById('countryCode').value;
+    
+            // If any field is invalid, prevent form submission
+            if (!username || !email || !password || !mobile || !countryCode) {
+                alert('Please complete all required fields.');
+                return false;
+            }
+            return true;
+        }
+    </script>
+
+</body>
+
+</html>
