@@ -1,0 +1,6 @@
+Flask==3.1.0              # Core framework
+Flask-Mail==0.10.0        # For sending emails
+Flask-Limiter==3.8.0      # For rate limiting API requests
+bcrypt==4.0.1             # For password hashing
+python-dotenv==1.0.0      # For environment variable management
+requests==2.32.3          # For making HTTP requests
