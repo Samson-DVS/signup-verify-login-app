@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP</title>
+    
+    <!-- GovTech Singapore Design System CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@govtechsg/sgds@2.2.0/css/sgds.css" />
+    <!-- Bootstrap Icons for UI components -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: #007BFF;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        .alert {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.875rem;
+        }
+        .countdown {
+            text-align: center; 
+            margin-top: 10px; 
+            font-size: 1rem; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Verify OTP</h1>
+
+        <div class="alert">
+          An OTP has been emailed to <strong>{{ session['email'] }}</strong>. Please check and verify.
+        </div>
+
+        <div class="countdown" id="countdown">OTP valid for <span id="time">05:00</span></div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert">
+                    {% for category, message in messages %}
+                        <p class="{{ category }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('verify_otp') }}" onsubmit="return validateOTP()">
+            <input type="hidden" name="email" value="{{ session['email'] }}">
+            <input type="hidden" name="username" value="{{ session['username'] }}">
+            <input type="hidden" name="password" value="{{ session['password'] }}">
+
+            <div class="form-group">
+                <label for="otp">Enter OTP</label>
+                <input type="text" name="otp" id="otp" placeholder="Enter your OTP" required class="form-control">
+                <small id="otp-error" class="error-message"></small>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Verify OTP</button>
+        </form>
+    </div>
+
+    <script>
+        function validateOTP() {
+            var otp = document.getElementById('otp').value;
+            var errorMessage = document.getElementById('otp-error');
+            var otpPattern = /^[0-9]+$/; // Only numbers
+            var maxLength = 15;
+
+            // Clear previous error message
+            errorMessage.textContent = '';
+
+            // Check if OTP is a valid number and within the maximum length
+            if (!otp.match(otpPattern)) {
+                errorMessage.textContent = 'OTP should only contain numbers.';
+                return false;
+            }
+
+            if (otp.length > maxLength) {
+                errorMessage.textContent = 'OTP should be a maximum of ' + maxLength + ' digits.';
+                return false;
+            }
+
+            if (otp.length < 1) {
+                errorMessage.textContent = 'Please enter your OTP.';
+                return false;
+            }
+
+            return true;
+        }
+
+        // Countdown Timer
+        let timeLeft = 300; // Set time in seconds (5 minutes)
+        
+        const countdownElement = document.getElementById('time');
+
+        const countdownTimer = setInterval(() => {
+          const minutes = Math.floor(timeLeft / 60);
+          const seconds = timeLeft % 60;
+
+          countdownElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+          if (timeLeft <= 0) {
+              clearInterval(countdownTimer);
+              countdownElement.textContent = "EXPIRED";
+              document.getElementById('otp').disabled = true; // Disable input after expiration
+          }
+
+          timeLeft -= 1; // Decrease time left by one second
+        }, 1000);
+    </script>
+</body>
+</html>
