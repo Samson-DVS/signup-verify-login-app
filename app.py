@@ -119,7 +119,7 @@ def verify_otp():
         mongo.db.user.insert_one({'username': username, 'email': email, 'mobile': mobile, 'password': hashed_password.decode('utf-8')})
         mongo.db.otps.delete_one({'_id': otp_record['_id']})
         session.clear()
-        flash('Account created successfully! Please log in.', 'success')
+        flash('Account created successfully! Please proceed to log in.', 'success')
         return redirect(url_for('login'))
     else:
         flash('Invalid or expired OTP', 'danger')
